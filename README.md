@@ -1,1 +1,2 @@
-# stopwatch.js
+# Timerinator
+
