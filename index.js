@@ -1,15 +1,15 @@
-class Stopwatch {
+module.exports = class {
   count = 0
   currentTime = 0
+  delay = undefined   // time(ms) after which the timer stops
   dT = 0
-  elapsed = 0
+  interval = 1000
   onStop = undefined  // callback anytime the timer is stopped
   onElapsed = undefined   // callback only when timer is elapsed
   onTick = undefined
-  interval = 1000
+  runTime = 0
   startTime = 0
-  timer = 0
-  timeout = undefined
+  timerID = 0
 
   
   constructor(config) {
@@ -18,74 +18,85 @@ class Stopwatch {
 
 
   /**
-   * 
-   * @returns {Integer} the count from the previous run and zeroes the stopwatch
+   * Runs a callback every tick (interval)
+   * Stops after the `delay` time
+   * @param {Function} tickHandler 
+   * @returns an Object containing info about this timer run
    */
-  reset() {
-    const val = this.count
-    this.count = 0
-    this.elapsed = 0
-    this.startTime = 0
-    return val
-  }
-
-
-  /**
-   * This function starts the timer
-   * @param {Integer} timeout - milliseconds until stopping, if undefined it runs forever
-   */
-  start(timeout) {
+  async timer(tickHandler) {
     this.startTime = Date.now()
-    if (timeout) this.timeout = timeout
+    this.count = 1
+    this.runTime = 0
 
 
-    this.timer = setInterval(()=>{
-      this.currentTime = Date.now()
+    return await new Promise(resolve=>{
+      this.timerID = setInterval(()=>{
+        this.currentTime = Date.now()
 
-      this.elapsed = this.currentTime - this.startTime
-      
-      this.dT = this.currentTime - this.priorTime
-  
-      ++this.count
-  
-      if (this.onTick && (typeof this.onTick === 'function')) this.onTick({
-        count: this.count,
-        dt: this.dT,
-        elapsed: this.elapsed,
-      })
-  
-      this.priorTime = this.currentTime
-
-      if (this.timeout && (this.elapsed >= this.timeout)) {
-        if (this.onElapsed && (typeof this.onElapsed === 'function')) this.onElapsed({
+        this.runTime = this.currentTime - this.startTime
+        
+        this.dT = this.currentTime - this.priorTime
+    
+        ++this.count
+    
+        // the instantiated tick handler
+        if (this.onTick && (typeof this.onTick === 'function')) this.onTick({
           count: this.count,
-          elapsed: this.elapsed,
+          dt: this.dT,
+          elapsed: this.runTime,
         })
+    
+        // one-off tick handler
+        if (tickHandler && (typeof tickHandler === 'function')) tickHandler({
+          count: this.count,
+          dt: this.dT,
+          elapsed: this.runTime,
+        })
+        
+        this.priorTime = this.currentTime
+      }, this.interval)
 
-        this.stop()
+
+      if (this.delay) {
+        setTimeout(() => {
+          this.stop()
+          
+          resolve({
+            count: this.count,
+            elapsed: this.runTime,
+          })
+        }, this.delay);
       }
-    }, this.interval);
+    })
   }
 
+  
+  /**
+   * Waits for a specified amount of time:
+   * async/await alternative utility for setTimeout
+   * @param {Integer} ms 
+   * @returns 
+   */
+  async timeout(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
 
+  
   /**
    * 
    * @param {Function} finalCallback - optional callback when stopping, this is the same function as in the constructor configuration object
    * @returns {Integer} - the final count of the stopwatch
    */
   stop(finalCallback) {
-    clearInterval(this.timer)
+    clearInterval(this.timerID)
 
     if (finalCallback) this.onStop = finalCallback
 
     if (this.onStop && (typeof this.onStop === 'function')) this.onStop({
       count: this.count,
-      elapsed: this.elapsed,
+      elapsed: this.runTime,
     })
 
     return this.count
   }
 }
-
-
-module.exports = Stopwatch

@@ -1,4 +1,4 @@
-const Gnomon = require('.')
+const Gnomon = require('..')
 const assert = require('assert')
 
 
@@ -17,13 +17,13 @@ async function basic_test() {
 
   console.log('T0', clepsydra.timer)
   
-  setTimeout(() => {
-    clepsydra.stop(res=>{
-      console.log('T0 stopped', res)
+  await timeout(2345)
 
-      assert(res.count === 9)
-    })
-  }, 2345);  
+  clepsydra.stop(res=>{
+    console.log('T0 stopped', res)
+
+    assert(res.count === 9)
+  })
 }
 // T0
 
@@ -44,13 +44,13 @@ async function tick_test() {
   console.log('T1', clepsydra.timer)
 
   
-  setTimeout(() => {
-    clepsydra.stop(res=>{
-      console.log('T1 stopped', res)
-      
-      assert(res.count === 3)
-    })
-  }, 1234);
+  await timeout(1234)
+
+  clepsydra.stop(res=>{
+    console.log('T1 stopped', res)
+    
+    assert(res.count === 3)
+  })
 }
 // T1
 
@@ -70,7 +70,7 @@ async function stop_test() {
       console.log(`T2 ${res.count}`)
     },
 
-    timeout: 3456,
+    delay: 3456,
   })
   
   
@@ -126,9 +126,9 @@ async function elapsed_test() {
 // T3
 
 
-Promise.all([
-  basic_test(),
-  tick_test(),
-  stop_test(),
-  elapsed_test(),
-]).catch(console.error)
+// Promise.all([
+//   basic_test(),
+//   tick_test(),
+//   stop_test(),
+//   elapsed_test(),
+// ]).catch(console.error)
