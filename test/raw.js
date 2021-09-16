@@ -1,5 +1,5 @@
-const Gnomon = require('..')
-const assert = require('assert')
+import Gnomon from './index.js'
+import assert from 'assert'
 
 
 // T0
