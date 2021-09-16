@@ -25,8 +25,10 @@ export default class AsyncTimer {
    */
   async timer(tickHandler) {
     this.startTime = Date.now()
-    this.count = 1
+    this.count = 0
     this.runTime = 0
+    
+    this.priorTime = this.startTime
 
 
     return await new Promise(resolve=>{

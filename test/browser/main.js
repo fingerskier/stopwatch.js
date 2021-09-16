@@ -1,20 +1,14 @@
+import assertion from '../assert.js'
+
 import {EventTimer} from '../../index.js'
 
 
 export default function test(tag) {
-  function assert(condition, message, detail) {
-    if (condition) {
-      console.log(`<${tag}>PASS`, message, detail)
-    } else {
-      console.error(`<${tag}>FAIL`, message, detail)
-    }
-  }
-  
+  const assert = assertion(tag)
   
   const expectedError = 17  // this number is highest I could get under testing circumstances
   const testDelay = 2560
   const testInterval = 500
-  
   
   const T = new EventTimer({
     delay: testDelay,

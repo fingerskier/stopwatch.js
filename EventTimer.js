@@ -36,7 +36,7 @@ class EventTimer extends EventTarget {
   start(tickHandler) {
     try {
       this.startTime = Date.now()
-      this.count = 1
+      this.count = 0
       this.runTime = 0
       
       this.priorTime = this.startTime
